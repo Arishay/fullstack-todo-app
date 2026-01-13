@@ -23,6 +23,10 @@ RUN pip install --no-cache-dir -e .
 # Copy application code
 COPY . .
 
+# Copy and make startup script executable
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Create a non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
@@ -30,5 +34,5 @@ USER appuser
 # Expose port (Railway will set PORT env variable)
 EXPOSE 8000
 
-# Start command - Railway will override with PORT env variable
-CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Use startup script
+CMD ["/app/start.sh"]
