@@ -1,8 +1,19 @@
 """FastAPI application initialization and configuration."""
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
+from .core.database import create_db_and_tables
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan - startup and shutdown events."""
+    # Startup: Create database tables
+    await create_db_and_tables()
+    yield
+    # Shutdown: cleanup if needed
 
 
 # Create FastAPI app
@@ -13,6 +24,7 @@ app = FastAPI(
     docs_url=f"{settings.API_PREFIX}/docs",
     redoc_url=f"{settings.API_PREFIX}/redoc",
     openapi_url=f"{settings.API_PREFIX}/openapi.json",
+    lifespan=lifespan,
 )
 
 
